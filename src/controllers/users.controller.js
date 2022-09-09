@@ -1,22 +1,7 @@
-import express from "express";
-import cors from "cors";
-import { MongoClient } from "mongodb";
-import bcrypt from "bcrypt";
-import dotenv from "dotenv";
-dotenv.config();
 import joi from "joi";
 import { v4 as uuidv4 } from "uuid";
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const mongoClient = new MongoClient(process.env.MONGO_URI);
-let db;
-
-mongoClient.connect().then(() => {
-  db = mongoClient.db("My-Wallet");
-});
+import bcrypt from "bcrypt";
+import db from "../database/db.js";
 
 const userSchema = joi.object({
   name: joi.string().required().trim(),
@@ -24,12 +9,12 @@ const userSchema = joi.object({
   password: joi.string().required().trim(),
 });
 
-app.post("/login", async (req, res) => {
+async function login(req, res) {
   const { email, password } = req.body;
-  console.log(req.body);
-  console.log(password);
+
   const user = await db.collection("users").findOne({ email: email });
   if (!user) return res.sendStatus(404);
+
   const comparePassword = bcrypt.compareSync(password, user.password);
 
   try {
@@ -49,13 +34,13 @@ app.post("/login", async (req, res) => {
     console.error(error);
     res.sendStatus(500);
   }
-});
+}
 
-app.post("/singup", async (req, res) => {
+async function create(req, res) {
   const { email, name, password } = req.body;
   const passwordHash = bcrypt.hashSync(password, 10);
   const validation = userSchema.validate(req.body, { abortEarly: false });
-  console.log(req.body);
+
   if (validation.error) {
     const error = validation.error.details.map((erro) => erro.message);
     res.status(422).send(error);
@@ -77,5 +62,6 @@ app.post("/singup", async (req, res) => {
   } catch (error) {
     res.sendStatus(500);
   }
-});
-app.listen(5000);
+}
+
+export { login, create };
