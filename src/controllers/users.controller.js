@@ -1,17 +1,9 @@
-import joi from "joi";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import db from "../database/db.js";
 
-const userSchema = joi.object({
-  name: joi.string().required().trim(),
-  email: joi.string().email().required().trim(),
-  password: joi.string().required().trim(),
-});
-
 async function login(req, res) {
   const { email, password } = req.body;
-
   const user = await db.collection("users").findOne({ email: email });
   if (!user) return res.sendStatus(404);
 
@@ -39,13 +31,6 @@ async function login(req, res) {
 async function create(req, res) {
   const { email, name, password } = req.body;
   const passwordHash = bcrypt.hashSync(password, 10);
-  const validation = userSchema.validate(req.body, { abortEarly: false });
-
-  if (validation.error) {
-    const error = validation.error.details.map((erro) => erro.message);
-    res.status(422).send(error);
-    return;
-  }
   const userExistent = await db.collection("users").findOne({ email: email });
 
   if (userExistent) {
