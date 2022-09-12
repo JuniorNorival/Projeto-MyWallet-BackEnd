@@ -1,5 +1,6 @@
 import db from "../database/db.js";
 import dayjs from "dayjs";
+import { ObjectId } from "mongodb";
 
 async function get(req, res) {
   const { user } = res.locals;
@@ -28,4 +29,17 @@ async function create(req, res) {
     res.sendStatus(500);
   }
 }
-export { get, create };
+async function deleteRecord(req, res) {
+  const { idRecord } = req.params;
+  const { user } = res.locals;
+
+  try {
+    await db.collection("records").deleteOne({ _id: ObjectId(idRecord) });
+    res.sendStatus(200);
+    return;
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+}
+export { get, create, deleteRecord };

@@ -12,5 +12,10 @@ router.post(
   authValidation,
   recordscontrollers.create
 );
+router.delete(
+  "/wallet/:idRecord",
+  authValidation,
+  recordscontrollers.deleteRecord
+);
 
 export default router;
