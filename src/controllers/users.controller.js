@@ -29,7 +29,8 @@ async function login(req, res) {
 }
 
 async function create(req, res) {
-  const { email, name, password } = req.body;
+  const { email, name, password, confirmPassword } = req.body;
+  /* if (password !== confirme_password) return res.sendStatus(403); */
   const passwordHash = bcrypt.hashSync(password, 10);
   const userExistent = await db.collection("users").findOne({ email: email });
 
@@ -42,6 +43,7 @@ async function create(req, res) {
       name,
       email,
       password: passwordHash,
+      confirmPassword,
     });
     res.sendStatus(201);
   } catch (error) {

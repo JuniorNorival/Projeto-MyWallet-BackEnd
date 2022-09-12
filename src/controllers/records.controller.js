@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 
 async function get(req, res) {
   const { user } = res.locals;
-  console.log(user);
+
   const record = await db
     .collection("records")
     .find({ userId: user._id })
@@ -13,6 +13,7 @@ async function get(req, res) {
 }
 
 async function create(req, res) {
+  const { user } = res.locals;
   const { value, description } = req.body;
   try {
     await db.collection("records").insertOne({
@@ -23,6 +24,7 @@ async function create(req, res) {
     });
     res.sendStatus(200);
   } catch (error) {
+    console.log(error);
     res.sendStatus(500);
   }
 }
